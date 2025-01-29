@@ -3,15 +3,22 @@ import { Layer, FrameState } from "./deps.ts"
 import { initCanvas } from "https://esm.sh/gh/gnlow/lilgpu@0535935/browser.ts"
 
 export class MyLayer extends Layer {
+    canvas
     draw
-    constructor(draw: () => HTMLCanvasElement) {
+    constructor(
+        canvas: HTMLCanvasElement,
+        draw: () => HTMLCanvasElement,
+    ) {
         super({})
+        this.canvas = canvas
         this.draw = draw
     }
 
     override render(frameState: FrameState | null) {
         if (!frameState) return null
-        console.log(frameState.extent, frameState.size)
+        console.log(frameState.extent, frameState.viewState.projection.getCode())
+        this.canvas.width = frameState.size[0]
+        this.canvas.height = frameState.size[1]
         return this.draw()
     }
 
@@ -34,7 +41,7 @@ export class MyLayer extends Layer {
             `,
             canvas,
         })
-        return new MyLayer(() => {
+        return new MyLayer(canvas, () => {
             g.draw(3)
             return canvas
         })
