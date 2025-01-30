@@ -5,7 +5,7 @@ import {
 } from "./src/deps.ts"
 import { MyTile } from "./src/MyTile.ts"
 
-const map = new Map({
+new Map({
     target: "map",
     layers: [
         new TileLayer({
