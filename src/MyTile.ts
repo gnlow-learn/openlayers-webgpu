@@ -1,32 +1,15 @@
-import { Layer, FrameState } from "./deps.ts"
+import { ImageTile } from "./deps.ts"
 // @ts-types="https://denopkg.com/gnlow/lilgpu@0535935/browser.ts"
 import { initCanvas, d } from "https://esm.sh/gh/gnlow/lilgpu@0535935/browser.ts"
 import { lefebvre } from "./ColorMap.ts"
 
 const shader = await fetch("src/main.wgsl").then(X => X.text())
 
-export class MyLayer extends Layer {
-    canvas
-    draw
-    constructor(
-        canvas: HTMLCanvasElement,
-        draw: (extent: number[]) => HTMLCanvasElement,
-    ) {
-        super({})
-        this.canvas = canvas
-        this.draw = draw
-    }
-
-    override render(frameState: FrameState | null) {
-        if (!frameState) return null
-        console.log(frameState.extent, frameState.viewState.projection.getCode())
-        this.canvas.width = frameState.size[0]
-        this.canvas.height = frameState.size[1]
-        return this.draw(frameState.extent!)
-    }
-
+export class MyTile extends ImageTile {
     static async from() {
         const canvas = document.createElement("canvas")
+        canvas.width = 256
+        canvas.height = 256
         const g = await initCanvas({
             vertShader: shader,
             fragShader: shader,
@@ -52,15 +35,20 @@ export class MyLayer extends Layer {
             )
         )
 
-        return new MyLayer(
-            canvas,
-            ([minX, minY, maxX, maxY]) => {
+        return new MyTile({
+            loader(z, x, y) {
+                console.log(z, x, y)
+                const u = 180 / 2**(z-1)
                 g.buffers.extent.write({
-                    minX, minY, maxX, maxY,
+                    minX: 180+u*x,
+                    minY: 90-u*(y+1),
+                    maxX: 180+u*(x+1),
+                    maxY: 90-u*y,
                 })
                 g.draw(4)
-                return canvas
-            }
-        )
+                return createImageBitmap(canvas)
+            },
+            projection: "EPSG:4326"
+        })
     }
 }

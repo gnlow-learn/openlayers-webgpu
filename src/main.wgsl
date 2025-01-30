@@ -102,7 +102,7 @@ fn calc(p: vec3f, seed: f32) -> f32 {
         ), seed+3),
     );
 
-    for (var depth=0; depth<40; depth++) {
+    for (var depth=0; depth<60; depth++) {
         let i = longestEdge(tet);
         let v1 = tet[i[0]];
         let v2 = tet[i[1]];

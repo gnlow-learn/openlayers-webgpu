@@ -1,13 +1,16 @@
 import {
     Map,
     View,
+    TileLayer,
 } from "./src/deps.ts"
-import { MyLayer } from "./src/MyLayer.ts"
+import { MyTile } from "./src/MyTile.ts"
 
 const map = new Map({
     target: "map",
     layers: [
-        await MyLayer.from()
+        new TileLayer({
+            source: await MyTile.from(),
+        }),
     ],
     view: new View({
         center: [0, 0],
